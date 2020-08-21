@@ -171,9 +171,9 @@ class ServicePercentageDetail(generics.RetrieveDestroyAPIView):
     serializer_class = ServicePercentageDetailSerializer
 
 
-class HelloView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        content = {'message': 'Hello, World!'}
-        return Response(content)
+# class HelloView(APIView):
+#     permission_classesвафаф = (IsAuthenticated,)
+#
+#     def get(self, request):
+#         content = {'message': 'Hello, World!'}
+#         return Response(content)

@@ -3,3 +3,12 @@ Django==3.1
 djangorestframework==3.11.1
 pytz==2020.1
 sqlparse==0.3.1
+
+pip~=20.2.2
+knox~=0.1.0
+psycopg2~=2.8.5
+Jinja2~=2.11.2
+setuptools~=41.2.0
+six~=1.15.0
+requests~=2.24.0
+Pygments~=2.6.1
