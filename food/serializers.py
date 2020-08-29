@@ -1,10 +1,13 @@
-from .models import User, Meal, Table, Role, Department, MealCategory, MealCategoriesByDepartment, Status, ServicePercentage
+from .models import User, Meal, Table, Role, Department, MealCategory, MealCategoriesByDepartment, Status, \
+    ServicePercentage
 from rest_framework import serializers
 
 """ USER """
 
 
 class UserListSerializer(serializers.ModelSerializer):
+    roleid = serializers.SlugRelatedField(slug_field='name', read_only=True)
+
     class Meta:
         model = User
         fields = '__all__'
@@ -26,6 +29,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class MealListSerializer(serializers.ModelSerializer):
+    categoryid = serializers.SlugRelatedField(slug_field='name', read_only=True)
+
     class Meta:
         model = Meal
         fields = '__all__'
@@ -134,4 +139,3 @@ class ServicePercentageDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicePercentage
         fields = '__all__'
-
