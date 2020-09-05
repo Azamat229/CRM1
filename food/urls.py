@@ -33,6 +33,16 @@ urlpatterns = [
     # path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # <-- And here
     # path('hello/', views.HelloView.as_view(), name='hello'),
 
-]
+    # path('orderview/', views.OrderList.as_view()),
+    path('order/', views.UsersListCreateView.as_view()),
+    path('order/<int:pk>/', views.OrderDetail.as_view()),
+    path('activeOrder/', views.ActiveOrder.as_view()),
 
+    path('check/', views.CheckCreateView.as_view()),
+    path('checks/', views.CheckListView.as_view()),
+
+
+
+
+]
 urlpatterns = format_suffix_patterns(urlpatterns)

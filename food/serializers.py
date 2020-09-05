@@ -1,5 +1,5 @@
 from .models import User, Meal, Table, Role, Department, MealCategory, MealCategoriesByDepartment, Status, \
-    ServicePercentage
+    ServicePercentage, Order, CountOfMeal, Check
 from rest_framework import serializers
 
 """ USER """
@@ -139,3 +139,88 @@ class ServicePercentageDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicePercentage
         fields = '__all__'
+
+
+"""Create Order"""
+
+
+class CountOfMealsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountOfMeal
+        fields = ['id', 'count_meal', 'name_meal']
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    count = CountOfMealsSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'waiterid', 'tableid', 'count', ]
+
+    def create(self, validated_data):
+        count = validated_data.pop('count')
+        order = Order.objects.create(**validated_data)
+        for coun in count:
+            CountOfMeal.objects.create(**coun, order=order)
+        return order
+
+
+"""List Order"""
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    count = CountOfMealsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'waiterid', 'tableid', 'tablename', 'isitopen', 'date', 'count']
+
+
+"""Delete Order"""
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    count = CountOfMealsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+"""Check create"""
+
+
+#
+# class AmountListSerializer(serializers.ModelSerializer):
+#     price = serializers.IntegerField( source='name.price')
+#
+#     class Meta:
+#         model = Amount
+#         fields = ['id', 'name', 'amount', 'price', ]
+
+
+class CheckCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Check
+        fields = ['orderid']
+        # fields = '__all__'
+    #
+    # def create(self, validated_data):
+    #     meals = validated_data.pop('meals')
+    #     list_of_check = Check.objects.create(**validated_data)
+    #     for meal in meals:
+    #         Amount.objects.create(**meal, list_of_check=list_of_check)
+    #     return list_of_check
+
+
+"""List Check"""
+
+
+class CheckListSerializer(serializers.ModelSerializer):
+    counts = CountOfMealsSerializer(many=True, read_only=True)
+
+
+    class Meta:
+        model = Check
+        # fields = '__all__'
+        fields = ['id', 'orderid', 'date', 'servicefee', 'counts']

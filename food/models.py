@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from django.contrib.auth.models import User
 
 
 class Table(models.Model):  # add, get all, delete
@@ -70,7 +71,7 @@ class Department(models.Model):  # add, get all, delete
 # ]
 
 
-class User(models.Model):
+class Userr(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     login = models.CharField(max_length=50)
@@ -215,6 +216,7 @@ class Meal(models.Model):
     def __str__(self):
         return self.name
 
+
 # [
 #     {
 #         "id": 4,
@@ -239,36 +241,68 @@ class Meal(models.Model):
 #     }
 # ]
 
-
-# class MealsMealsByCategory(models.Model):
+#
+# class MealMealsByCategory(models.Model):
 #     name = models.CharField(max_length=50)
-#     category = models.ForeignKey(MealCategory, on_delete=models.CASCADE)
+#     categoryid = models.ForeignKey(MealCategory, on_delete=models.CASCADE)
 #     price = models.IntegerField()
 #     description = models.CharField(help_text="option field", null=True)
 #
 #     def __str__(self):
 #         return self.name
+
+
+class Order(models.Model):
+    waiterid = models.ForeignKey(Userr, on_delete=models.CASCADE)
+    tableid = models.ForeignKey(Table, on_delete=models.CASCADE)
+    tablename = models.CharField(max_length=50)
+    isitopen = models.BooleanField(default=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}, {}'.format(self.waiterid, self.tableid)
+
+
+class CountOfMeal(models.Model):
+    order = models.ForeignKey(Order, related_name='count', on_delete=models.CASCADE)
+    name_meal = models.ForeignKey(Meal, on_delete=models.CASCADE, blank=True, null=True)
+    count_meal = models.PositiveIntegerField()
+
+    @property
+    def total(self):
+        return self.count_meal * self.name_meal.price
+
+"""Create Check"""
+
+
+class Check(models.Model):
+    order = models.ForeignKey(Order, related_name='counts', on_delete=models.CASCADE)
+
+    orderid = models.ForeignKey(Order, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+
+    servicefee = models.ForeignKey(ServicePercentage, on_delete=models.CASCADE)
+    totalsum = models.IntegerField()  # thinking about this
+
+    def __str__(self):
+        return self.orderid
+
+
+
+
+
+
+
 #
+# class Amount(models.Model):
+#     list_of_check = models.ForeignKey(Check, related_name='meals', on_delete=models.CASCADE)
+#     name = models.ForeignKey(Meal, on_delete=models.CASCADE, blank=True, null=True)
+#     amount = models.PositiveIntegerField()
 #
-# class ActiveOrders(models.Model):
-#     waiterid = models.ForeignKey()  ## fvfgjgsfdg
-#     tableid = models.ForeignKey(Table, on_delete=models.CASCADE())
-#     tablename = models.CharField(max_length=50)  ##dfsghdfhgsdfh
-#     isitopen = models.BooleanField(default=True)
-#     date = models.DateTimeField(auto_now_add=True)
-#     mealid = models.ForeignKey(Meal, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return self.tablename  # походу нужно еще какое нибудь поле
-#
-#
-# class Order(models.Model):
-#     waiterid = models.ForeignKey()  ## fvfgjgsfdg
-#     tableid = models.ForeignKey(Table, on_delete=models.CASCADE())
-#     tablename = models.CharField(max_length=50)  ##dfsghdfhgsdfh
-#     isitopen = models.BooleanField(default=False)
-#     date = models.DateTimeField(auto_now_add=True)
-#     mealid = models.ForeignKey(Meal, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return self.tablename  # походу нужно еще какое нибудь поле
+#     @property
+#     def total(self):
+#         return self.amount * self.name.price
+
+# class MealsToOrder(models.Model):  # uniqueid ?
+#     orderid = models.ForeignKey(Order, on_delete=models.CASCADE)
+#     meals = models.ForeignKey(Meal, on_delete=models.CASCADE)

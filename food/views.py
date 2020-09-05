@@ -1,5 +1,5 @@
 from .serializers import *
-from .models import User, Meal, Table, Role, Department, MealCategoriesByDepartment
+from .models import User, Meal, Table, Role, Department, MealCategoriesByDepartment, Order, Check
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import Http404
@@ -7,6 +7,12 @@ from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+
+from rest_framework import exceptions
+from rest_framework import generics
+
+from food import models
+from food import serializers as ser
 
 """User by using base way"""
 
@@ -171,9 +177,65 @@ class ServicePercentageDetail(generics.RetrieveDestroyAPIView):
     serializer_class = ServicePercentageDetailSerializer
 
 
-# class HelloView(APIView):
-#     permission_classesвафаф = (IsAuthenticated,)
-#
-#     def get(self, request):
-#         content = {'message': 'Hello, World!'}
-#         return Response(content)
+"""MealCategory"""
+
+
+class OrderDetail(generics.RetrieveDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderDetailSerializer
+
+
+class MethodSerializerView(object):
+    '''
+    Utility class for get different serializer class by method.
+    For example:
+    method_serializer_classes = {
+        ('GET', ): MyModelListViewSerializer,
+        ('PUT', 'PATCH'): MyModelCreateUpdateSerializer
+    }
+    '''
+    method_serializer_classes = None
+
+    def get_serializer_class(self):
+        assert self.method_serializer_classes is not None, (
+                'Expected view %s should contain method_serializer_classes '
+                'to get right serializer class.' %
+                (self.__class__.__name__,)
+        )
+        for methods, serializer_cls in self.method_serializer_classes.items():
+            if self.request.method in methods:
+                return serializer_cls
+
+        raise exceptions.MethodNotAllowed(self.request.method)
+
+
+class UsersListCreateView(MethodSerializerView, generics.ListCreateAPIView):
+    '''
+    API: /users
+    Method: GET/POST
+    '''
+    queryset = models.Order.objects.all()
+    method_serializer_classes = {
+        ('GET',): ser.OrderListSerializer,
+        ('POST'): ser.OrderCreateSerializer
+    }
+
+
+class ActiveOrder(generics.ListAPIView):
+    serializer_class = OrderListSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(isitopen=True)
+
+
+"""Check Create List"""
+
+
+class CheckCreateView(generics.CreateAPIView):
+    queryset = Check.objects.all()
+    serializer_class = CheckCreateSerializer
+
+
+class CheckListView(generics.CreateAPIView):
+    queryset = Check.objects.all()
+    serializer_class = CheckListSerializer
