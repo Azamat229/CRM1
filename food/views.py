@@ -236,6 +236,11 @@ class CheckCreateView(generics.CreateAPIView):
     serializer_class = CheckCreateSerializer
 
 
-class CheckListView(generics.CreateAPIView):
+class CheckListView(generics.ListAPIView):
     queryset = Check.objects.all()
     serializer_class = CheckListSerializer
+
+
+class CountOfMealViewList(generics.ListAPIView):
+    queryset = CountOfMeal.objects.all()
+    serializer_class = AmountMealSerializer

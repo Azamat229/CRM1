@@ -132,7 +132,7 @@ class StatusDetailSerializer(serializers.ModelSerializer):
 class ServicePercentageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicePercentage
-        fields = '__all__'
+        fields = ['percentage']
 
 
 class ServicePercentageDetailSerializer(serializers.ModelSerializer):
@@ -147,7 +147,7 @@ class ServicePercentageDetailSerializer(serializers.ModelSerializer):
 class CountOfMealsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CountOfMeal
-        fields = ['id', 'count_meal', 'name_meal']
+        fields = ['id', 'amount', 'name_meal']
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
@@ -190,37 +190,32 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 """Check create"""
 
 
-#
-# class AmountListSerializer(serializers.ModelSerializer):
-#     price = serializers.IntegerField( source='name.price')
-#
-#     class Meta:
-#         model = Amount
-#         fields = ['id', 'name', 'amount', 'price', ]
+class AmountMealSerializer(serializers.ModelSerializer):
+    total = serializers.IntegerField(read_only=True)
+    price = serializers.IntegerField(read_only=True, source='name_meal.price')
+
+    class Meta:
+        model = CountOfMeal
+        fields = ['id', 'name_meal', 'price', 'amount', 'total', ]
 
 
 class CheckCreateSerializer(serializers.ModelSerializer):
+    # servicefee = serializers.IntegerField( source='servicefee.percentage')
+    mealsid = AmountMealSerializer(read_only=True)
     class Meta:
         model = Check
-        fields = ['orderid']
+        fields = ['orderid', 'mealsid']
         # fields = '__all__'
-    #
-    # def create(self, validated_data):
-    #     meals = validated_data.pop('meals')
-    #     list_of_check = Check.objects.create(**validated_data)
-    #     for meal in meals:
-    #         Amount.objects.create(**meal, list_of_check=list_of_check)
-    #     return list_of_check
 
 
 """List Check"""
 
 
-class CheckListSerializer(serializers.ModelSerializer):
-    counts = CountOfMealsSerializer(many=True, read_only=True)
 
+class CheckListSerializer(serializers.ModelSerializer):
+    servicefee = serializers.IntegerField(read_only=True, source='servicefee.percentage')
+    mealsid = AmountMealSerializer(read_only=True)
 
     class Meta:
         model = Check
-        # fields = '__all__'
-        fields = ['id', 'orderid', 'date', 'servicefee', 'counts']
+        fields = ['id', 'orderid', 'date', 'servicefee', 'mealsid']

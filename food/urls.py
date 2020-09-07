@@ -41,6 +41,9 @@ urlpatterns = [
     path('check/', views.CheckCreateView.as_view()),
     path('checks/', views.CheckListView.as_view()),
 
+    path('count/', views.CountOfMealViewList.as_view()),
+
+
 
 
 
